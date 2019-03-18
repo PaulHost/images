@@ -1,2 +1,2 @@
 # images
-Loading Images from API + from Gallery on Konic
+Loading Images from API + from Gallery on Ionic framework
