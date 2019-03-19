@@ -1,5 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
+import {Observable} from '@types/rx';
+import {Photo} from '../../data/model/photo';
+import {Subject} from 'rxjs/Subject';
 
 @Component({
     selector: 'app-image-viewer',
@@ -9,9 +12,10 @@ import {DomSanitizer} from '@angular/platform-browser';
 export class ImageViewerPage implements OnInit {
     @ViewChild('slider') slider: Slides;
 
-    private initialImage: any;
+    private initialImage: Photo;
 
-    public photos: Photo[];
+    public photos: Set<Photo>;
+    public observable: Observable;
     private sliderDisabled: boolean = false;
     private initialSlide: number = 0;
     private currentSlide: number = 0;
@@ -36,12 +40,21 @@ export class ImageViewerPage implements OnInit {
     private transitionDuration: string = '200ms';
     private transitionTimingFunction: string = 'cubic-bezier(0.33, 0.66, 0.66, 1)';
 
-    constructor(private viewCtrl: ViewController, params: NavParams, private element: ElementRef, private platform: Platform, private domSanitizer: DomSanitizer) {
+    constructor(private viewCtrl: ViewController,
+                params: NavParams,
+                private element: ElementRef,
+                private platform: Platform,
+                private domSanitizer: DomSanitizer) {
         this.photos = params.get('photos') || [];
         this.closeIcon = params.get('closeIcon') || 'arrow-back';
+        this.observable = params.get('observable');
         this.initialSlide = params.get('initialSlide') || 0;
 
-        this.initialImage = this.photos[this.initialSlide] || {};
+        this.observable.subscribe((photos: Set<Photo>, position?: number) => {
+            this.photos.add(photos);
+            if (position) this.initialImage = position;
+            if (!this.initialImage) this.initialImage = this.photos[this.initialSlide] || {};
+        }, error => console.log(error));
     }
 
     public ngOnInit() {
@@ -76,6 +89,12 @@ export class ImageViewerPage implements OnInit {
         this.resize(false);
         this.sliderLoaded = true;
         this.slidesStyle.visibility = 'visible';
+    }
+
+    orientationChange($event) {
+        window.setTimeout(() => {
+            this.resize(event);
+        }, 150);
     }
 
     /**
