@@ -8,6 +8,8 @@
 
 <ion-content padding>
     <ion-list>
-        <ion-item ngFor="let item of pictures"></ion-item>
+        <ion-item ngFor="let item of pictures; let i = index">
+            <image src="item.url" (click)="onItemClick(i)"/>
+        </ion-item>
     </ion-list>
 </ion-content>
