@@ -3,6 +3,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {Observable} from '@types/rx';
 import {Photo} from '../../data/model/photo';
 import {Subject} from 'rxjs/Subject';
+import {Api} from '../../data/api';
 
 @Component({
     selector: 'app-image-viewer',
@@ -15,7 +16,7 @@ export class ImageViewerPage implements OnInit {
     private initialImage: Photo;
 
     public photos: Set<Photo>;
-    public observable: Observable;
+    public api: Api;
     private sliderDisabled: boolean = false;
     private initialSlide: number = 0;
     private currentSlide: number = 0;
@@ -41,20 +42,16 @@ export class ImageViewerPage implements OnInit {
     private transitionTimingFunction: string = 'cubic-bezier(0.33, 0.66, 0.66, 1)';
 
     constructor(private viewCtrl: ViewController,
-                params: NavParams,
+                private params: NavParams,
                 private element: ElementRef,
                 private platform: Platform,
                 private domSanitizer: DomSanitizer) {
         this.photos = params.get('photos') || [];
         this.closeIcon = params.get('closeIcon') || 'arrow-back';
-        this.observable = params.get('observable');
-        this.initialSlide = params.get('initialSlide') || 0;
+        this.api = params.get('api');
+        this.initialSlide = params.get('position') || 0;
 
-        this.observable.subscribe((photos: Set<Photo>, position?: number) => {
-            this.photos.add(photos);
-            if (position) this.initialImage = position;
-            if (!this.initialImage) this.initialImage = this.photos[this.initialSlide] || {};
-        }, error => console.log(error));
+        this.initialImage = this.photos[this.initialSlide] || {};
     }
 
     public ngOnInit() {
@@ -70,8 +67,9 @@ export class ImageViewerPage implements OnInit {
     }
 
     private resize(event) {
-        if (this.slider)
+        if (this.slider) {
             this.slider.update();
+        }
 
         this.width = this.element.nativeElement.offsetWidth;
         this.height = this.element.nativeElement.offsetHeight;
