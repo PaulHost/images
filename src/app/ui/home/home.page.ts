@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {Api} from '../../data/api';
 import {Photo} from '../../data/model/photo';
 import {ImageViewerPage} from '../image-viewer/image-viewer.page';
-import {NavController, NavParams} from '@ionic/angular';
+import {ModalController, ModalController, NavController, NavParams} from '@ionic/angular';
 
 @Component({
     selector: 'app-home',
@@ -10,18 +10,25 @@ import {NavController, NavParams} from '@ionic/angular';
     styleUrls: ['home.page.scss'],
 })
 export class HomePage {
-    pictures: Photo[];
+    private i: number = 0;
+    pictures: Photo[] = [];
 
     constructor(public navCtrl: NavController,
                 public navParams: NavParams,
+                private modal: ModalController,
                 private api: Api) {
+        this.modal = this.modalController.create({
+            component: ImageViewerPage,
+            componentProps: {position: i, photos: this.pictures, /*api: this.api*/}
+        });
         this.api.getAllImage().subscribe(photos => {
             this.pictures = photos;
         });
     }
 
     onItemClick(i: number) {
-        this.navCtrl.push(ImageViewerPage, {position: i, photos: this.pictures, api: this.api});
+        this.i = i;
+        this.modal.present();
     }
 
 }

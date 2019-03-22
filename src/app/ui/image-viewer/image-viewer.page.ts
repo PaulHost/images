@@ -1,9 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {DomSanitizer} from '@angular/platform-browser';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {Observable} from '@types/rx';
 import {Photo} from '../../data/model/photo';
 import {Subject} from 'rxjs/Subject';
-import {Api} from '../../data/api';
+import {ModalController, NavParams} from '@ionic/angular';
 
 @Component({
     selector: 'app-image-viewer',
@@ -14,9 +13,7 @@ export class ImageViewerPage implements OnInit {
     @ViewChild('slider') slider: Slides;
 
     private initialImage: Photo;
-
     public photos: Set<Photo>;
-    public api: Api;
     private sliderDisabled: boolean = false;
     private initialSlide: number = 0;
     private currentSlide: number = 0;
@@ -26,29 +23,28 @@ export class ImageViewerPage implements OnInit {
     private slidesDragging: boolean = false;
     private panUpDownRatio: number = 0;
     private panUpDownDeltaY: number = 0;
+
     private dismissed: boolean = false;
-
     private width: number = 0;
-    private height: number = 0;
 
+    private height: number = 0;
     private slidesStyle: any = {
         visibility: 'hidden',
     };
+
     private modalStyle: any = {
         backgroundColor: 'rgba(0, 0, 0, 1)',
     };
-
     private transitionDuration: string = '200ms';
+
     private transitionTimingFunction: string = 'cubic-bezier(0.33, 0.66, 0.66, 1)';
 
-    constructor(private viewCtrl: ViewController,
+    constructor(private modal: ModalController,
                 private params: NavParams,
                 private element: ElementRef,
-                private platform: Platform,
-                private domSanitizer: DomSanitizer) {
+    ) {
         this.photos = params.get('photos') || [];
         this.closeIcon = params.get('closeIcon') || 'arrow-back';
-        this.api = params.get('api');
         this.initialSlide = params.get('position') || 0;
 
         this.initialImage = this.photos[this.initialSlide] || {};
@@ -63,7 +59,7 @@ export class ImageViewerPage implements OnInit {
      * Closes the modal (when user click on CLOSE)
      */
     public dismiss() {
-        this.viewCtrl.dismiss();
+        this.modal.dismiss();
     }
 
     private resize(event) {

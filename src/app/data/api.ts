@@ -7,7 +7,7 @@ import {Page} from './model/page';
 @Injectable
 export class Api {
     private url = {
-        domain: 'api.webcost.eu/api/',
+        domain: 'http://api.webcost.eu/api/',
         getAllImages: url.domain + 'getAllImages',
         getImageById: url.domain + 'getImageById?id=',
         saveImage: url.domain + 'saveImage',
@@ -43,7 +43,7 @@ export class Api {
                 this.page = page;
                 return page.photos;
             })
-            .onErrorResumeNext({});
+            .onErrorResumeNext([]);
     }
 
     private pageFromJson(json: any): Page {
